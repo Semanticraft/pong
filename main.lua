@@ -4,9 +4,8 @@
 
     -- Main Program --
 
-    Authors: Colton Ogden, Dennis Forster
+    Author: Colton Ogden
     cogden@cs50.harvard.edu
-    forster02@web.de
 
     Originally programmed by Atari in 1972. Features two
     paddles, controlled by players, with the goal of getting
@@ -137,6 +136,9 @@ end
 ]]
 
 function move_player(player)
+    -- OFFSET controls how much the ball can diverge from the middle of the AI paddle without the paddle moving
+    -- it should be at least 2 to not make it wobble constantly
+    OFFSET = 2
     if not player.ai_flag then
         if love.keyboard.isDown('w') then
             player.dy = -PADDLE_SPEED
@@ -146,9 +148,9 @@ function move_player(player)
             player.dy = 0
         end
     else
-        if ball.y > player.y + player.height then
+        if ball.y + ball.height / 2 > player.y + player.height / 2 + OFFSET then
             player.dy = PADDLE_SPEED
-        elseif player.y > ball.y + ball.height then
+        elseif player.y + player.height / 2 > ball.y + ball.height / 2 + OFFSET then
             player.dy = -PADDLE_SPEED
         else
             player.dy = 0
@@ -329,8 +331,12 @@ function love.draw()
         -- UI messages
         love.graphics.setFont(smallFont)
         love.graphics.printf('Welcome to Pong!', 0, 10, VIRTUAL_WIDTH, 'center')
-        love.graphics.printf('Press l to begin with left paddle, r to begin with right paddle, b to begin with both!', 0,
+        love.graphics.printf('Press l to begin with the left paddle!', 0,
             20, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press r to begin with the right paddle!', 0,
+            30, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press b to begin with both!', 0,
+            40, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'serve' then
         -- UI messages
         love.graphics.setFont(smallFont)
