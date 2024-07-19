@@ -134,6 +134,27 @@ end
     changes we make will be applied as fast as possible and will vary
     across system hardware.
 ]]
+
+function move_player(player)
+    if not player.ai_flag then
+        if love.keyboard.isDown('w') then
+            player.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('s') then
+            player.dy = PADDLE_SPEED
+        else
+            player.dy = 0
+        end
+    else
+        if ball.y > player.y + player.height then
+            player.dy = PADDLE_SPEED
+        elseif player.y > ball.y + ball.height then
+            player.dy = -PADDLE_SPEED
+        else
+            player.dy = 0
+        end
+    end
+end
+
 function love.update(dt)
     if gameState == 'serve' then
         -- before switching to play, initialize ball's velocity based
@@ -233,50 +254,16 @@ function love.update(dt)
     -- paddles can move no matter what state we're in
     --
     -- player 1
-    if not player1.ai_flag then
-        if love.keyboard.isDown('w') then
-            player1.dy = -PADDLE_SPEED
-        elseif love.keyboard.isDown('s') then
-            player1.dy = PADDLE_SPEED
-        else
-            player1.dy = 0
-        end
-    end
+    move_player(player1)
 
     -- player 2
-    if not player2.ai_flag then
-        if love.keyboard.isDown('up') then
-            player2.dy = -PADDLE_SPEED
-        elseif love.keyboard.isDown('down') then
-            player2.dy = PADDLE_SPEED
-        else
-            player2.dy = 0
-        end
-    end
+    move_player(player2)
 
 
     -- update our ball based on its DX and DY only if we're in play state;
     -- scale the velocity by dt so movement is framerate-independent
     if gameState == 'play' then
         ball:update(dt)
-        if player1.ai_flag then
-            if ball.y > player1.y + player1.height then
-                player1.dy = PADDLE_SPEED
-            elseif player1.y > ball.y + ball.height then
-                player1.dy = -PADDLE_SPEED
-            else
-                player1.dy = 0
-            end
-        end
-        if player2.ai_flag then
-            if ball.y > player2.y + player2.height then
-                player2.dy = PADDLE_SPEED
-            elseif player2.y > ball.y + ball.height then
-                player2.dy = -PADDLE_SPEED
-            else
-                player2.dy = 0
-            end
-        end
     end
 
     player1:update(dt)
