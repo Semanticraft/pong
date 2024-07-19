@@ -4,9 +4,8 @@
 
     -- Main Program --
 
-    Authors: Colton Ogden, Dennis Forster
-    cogden@cs50.harvard.edu
-    forster02@web.de
+    Author: Colton Ogden, Dennis Forster
+    cogden@cs50.harvard.edu, forster02@web.de
 
     Originally programmed by Atari in 1972. Features two
     paddles, controlled by players, with the goal of getting
@@ -136,14 +135,22 @@ end
     across system hardware.
 ]]
 
-function move_player(player)
+function move_player(player, control)
     -- offset controls how much the ball can diverge from the middle of the AI paddle without the paddle moving
     -- it should be at least 2 to not make it wobble constantly
     offset = 2
-    if not player.ai_flag then
+    if not player.ai_flag and control == 1 then
         if love.keyboard.isDown('w') then
             player.dy = -PADDLE_SPEED
         elseif love.keyboard.isDown('s') then
+            player.dy = PADDLE_SPEED
+        else
+            player.dy = 0
+        end
+    elseif not player.ai_flag and control == 2 then
+        if love.keyboard.isDown('up') then
+            player.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('down') then
             player.dy = PADDLE_SPEED
         else
             player.dy = 0
@@ -258,10 +265,10 @@ function love.update(dt)
     -- paddles can move no matter what state we're in
     --
     -- player 1
-    move_player(player1)
+    move_player(player1, 1)
 
     -- player 2
-    move_player(player2)
+    move_player(player2, 2)
 
 
     -- update our ball based on its DX and DY only if we're in play state;
@@ -287,10 +294,10 @@ function love.keypressed(key)
         love.event.quit()
         -- if we press enter during either the start or serve phase, it should
         -- transition to the next appropriate state
-    elseif key == 'r' or key == 'l' or key == 'b' then
+    elseif key == 'r' or key == 'l' or key == 'b' or key == 'n' then
         if gameState == 'start' then
-            player1.ai_flag = key == 'r'
-            player2.ai_flag = key == 'l'
+            player1.ai_flag = key == 'r' or key == 'n'
+            player2.ai_flag = key == 'l' or key == 'n'
             gameState = 'serve'
         end
     elseif key == 'enter' or key == 'return' then
@@ -313,6 +320,16 @@ function love.keypressed(key)
             else
                 servingPlayer = 1
             end
+        end
+    elseif key == 'backspace' then
+        if gameState == 'play' or gameState == 'serve' then
+            gameState = 'start'
+
+            ball:reset()
+
+            -- reset scores to 0
+            player1Score = 0
+            player2Score = 0
         end
     end
 end
@@ -338,6 +355,8 @@ function love.draw()
             30, VIRTUAL_WIDTH, 'center')
         love.graphics.printf('Press b to begin with both!', 0,
             40, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press n to begin with none!', 0,
+            50, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'serve' then
         -- UI messages
         love.graphics.setFont(smallFont)
