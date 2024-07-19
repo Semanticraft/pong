@@ -136,9 +136,9 @@ end
 ]]
 
 function move_player(player)
-    -- OFFSET controls how much the ball can diverge from the middle of the AI paddle without the paddle moving
+    -- offset controls how much the ball can diverge from the middle of the AI paddle without the paddle moving
     -- it should be at least 2 to not make it wobble constantly
-    OFFSET = 2
+    offset = 2
     if not player.ai_flag then
         if love.keyboard.isDown('w') then
             player.dy = -PADDLE_SPEED
@@ -148,9 +148,9 @@ function move_player(player)
             player.dy = 0
         end
     else
-        if ball.y + ball.height / 2 > player.y + player.height / 2 + OFFSET then
+        if ball.y + ball.height / 2 > player.y + player.height / 2 + offset then
             player.dy = PADDLE_SPEED
-        elseif player.y + player.height / 2 > ball.y + ball.height / 2 + OFFSET then
+        elseif player.y + player.height / 2 > ball.y + ball.height / 2 + offset then
             player.dy = -PADDLE_SPEED
         else
             player.dy = 0
