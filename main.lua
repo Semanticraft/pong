@@ -4,8 +4,9 @@
 
     -- Main Program --
 
-    Author: Colton Ogden
+    Authors: Colton Ogden, Dennis Forster
     cogden@cs50.harvard.edu
+    forster02@web.de
 
     Originally programmed by Atari in 1972. Features two
     paddles, controlled by players, with the goal of getting
