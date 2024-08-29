@@ -50,6 +50,10 @@ VIRTUAL_HEIGHT = 243
 -- paddle movement speed
 PADDLE_SPEED = 200
 
+MAX_BALL_SPEED = 400
+
+unbeatable_ai = false
+
 --[[
     Called just once at the beginning of the game; used to set up
     game objects, variables, etc. and prepare the game world.
@@ -156,15 +160,26 @@ function move_player(player, control)
             player.dy = 0
         end
     else
-        if ball.y + ball.height / 2 > player.y + player.height / 2 + offset then
-            player.dy = PADDLE_SPEED
-        elseif player.y + player.height / 2 > ball.y + ball.height / 2 + offset then
-            player.dy = -PADDLE_SPEED
+        if unbeatable_ai then
+            if ball.y + ball.height / 2 > player.y + player.height / 2 + offset then
+                player.dy = PADDLE_SPEED
+            elseif player.y + player.height / 2 > ball.y + ball.height / 2 + offset then
+                player.dy = -PADDLE_SPEED
+            else
+                player.dy = 0
+            end
         else
-            player.dy = 0
+            if ball.y + ball.height / 2 > player.y + player.height + offset then
+                player.dy = PADDLE_SPEED
+            elseif player.y + player.height > ball.y + ball.height / 2 + offset then
+                player.dy = -PADDLE_SPEED
+            else
+                player.dy = 0
+            end
         end
     end
 end
+
 
 function love.update(dt)
     if gameState == 'serve' then
@@ -194,7 +209,7 @@ function love.update(dt)
             sounds['paddle_hit']:play()
         end
         if ball:collides(player2) then
-            ball.dx = -ball.dx * 1.03
+            ball.dx = (math.abs(ball.dx) * 1.03 <= MAX_BALL_SPEED) and (-ball.dx * 1.03) or (-MAX_BALL_SPEED)
             ball.x = player2.x - 4
 
             -- keep velocity going in the same direction, but randomize it
@@ -298,6 +313,16 @@ function love.keypressed(key)
         if gameState == 'start' then
             player1.ai_flag = key == 'r' or key == 'n'
             player2.ai_flag = key == 'l' or key == 'n'
+            gameState = (key == 'b') and 'serve' or 'ai_mode_choice'
+        end
+    elseif key == 'u' or key == 'e' then
+        if gameState == 'ai_mode_choice' then
+            if key == 'u' then
+                unbeatable_ai = true
+            end
+            if key == 'e' then
+                unbeatable_ai = false
+            end
             gameState = 'serve'
         end
     elseif key == 'enter' or key == 'return' then
@@ -363,6 +388,12 @@ function love.draw()
         love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!",
             0, 10, VIRTUAL_WIDTH, 'center')
         love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'ai_mode_choice' then
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Press u for an unbeatable AI!', 0,
+            20, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press e for a beatable AI!', 0,
+            30, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'play' then
         -- no UI messages to display in play
     elseif gameState == 'done' then
